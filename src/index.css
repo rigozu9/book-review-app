@@ -1,0 +1,66 @@
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: black;
+  color: white;
+}
+
+.input-container {
+  height: 100px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-bar {
+  border: none;
+  outline: none;
+  background: grey;
+  padding: .5rem;
+  border-radius: 5px;
+  color: white;
+}
+
+.books {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 5rem;
+}
+
+.book {
+  width: 300px;
+  object-fit: cover;
+  height: 100%;
+  cursor: pointer;
+}
+
+.book-container {
+  position: relative;
+  overflow: hidden;
+  transition: .3s ease;
+}
+
+.book-container:hover {
+  transform: scale(1.1);
+}
+
+.book-container:hover .overlay  {
+  transform: translateY(0%);
+}
+.overlay {
+  position: absolute;
+  background-color: rgba(1, 1, 1, .5);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  transform: translateY(100%);
+  transition: .3s ease;
+}

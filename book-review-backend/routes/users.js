@@ -1,0 +1,62 @@
+/* eslint-disable no-undef */
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import db from '../db.js';
+
+const router = express.Router();
+const saltRounds = 10;
+
+// Register a new user
+router.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Check if user already exists
+    const userExists = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+    if (userExists) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Insert the new user into the database
+    const stmt = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)');
+    stmt.run(username, hashedPassword);
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Login a user
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Check if user exists
+    const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    // Compare the password
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    // Create and sign a JWT
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+export default router;
