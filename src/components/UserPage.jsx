@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import BooksList from './BooksList';
 
 const UserPage = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [readBooks, setReadBooks] = useState([]);
+  const [planToReadBooks, setPlanToReadBooks] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -21,6 +27,20 @@ const UserPage = () => {
         }
         const data = await response.json();
         setUser(data);
+
+        const readBooksIds = JSON.parse(data.read_books);
+        const planToReadBooksIds = JSON.parse(data.plan_to_read_books);
+
+        const fetchBookDetails = async (bookIds) => {
+          const bookDetails = await Promise.all(bookIds.map(async (bookId) => {
+            const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${bookId}`);
+            return res.json();
+          }));
+          return bookDetails;
+        };
+
+        setReadBooks(await fetchBookDetails(readBooksIds));
+        setPlanToReadBooks(await fetchBookDetails(planToReadBooksIds));
       } catch (error) {
         setError(error.message);
       }
@@ -37,21 +57,19 @@ const UserPage = () => {
     return <div>Loading...</div>;
   }
 
+  const goToSearchPage = () => {
+    navigate(`/search`);
+  };
+
+
   return (
     <div>
       <h1>{user.username}s Page</h1>
-      <h2>Read Books</h2>
-      <ul>
-        {user.read_books && JSON.parse(user.read_books).map((book, index) => (
-          <li key={index}>{book}</li>
-        ))}
-      </ul>
-      <h2>Plan to Read Books</h2>
-      <ul>
-        {user.plan_to_read_books && JSON.parse(user.plan_to_read_books).map((book, index) => (
-          <li key={index}>{book}</li>
-        ))}
-      </ul>
+      <button onClick={goToSearchPage}>Go to search</button>
+      <h2>Read</h2>
+      <BooksList books={readBooks} />
+      <h2>Plan to read</h2>
+      <BooksList books={planToReadBooks} />
     </div>
   );
 };

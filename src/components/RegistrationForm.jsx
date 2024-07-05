@@ -36,6 +36,11 @@ const RegistrationForm = () => {
     }
   };
 
+  
+  const goToLoginPage = () => {
+    navigate(`/login`);
+  };
+
   return (
     <div>
       <h2>Register</h2>
@@ -59,6 +64,7 @@ const RegistrationForm = () => {
           />
         </div>
         <button type="submit">Register</button>
+        <button onClick={goToLoginPage}>Already a user? Log in here</button>
       </form>
       {message && <p>{message}</p>}
     </div>
