@@ -20,10 +20,14 @@ const LoginForm = () => {
       const data = await response.json();
       if (response.ok) {
         setMessage('Login successful!');
+        navigate('/search');
+
+        // -------- gpt timeout --------
         // Store token or handle authenticated state here
-        setTimeout(() => {
-            navigate('/search');
-        }, 2000); // Redirect to search book page after 2 seconds
+        // setTimeout(() => {
+        //     navigate('/search');
+        // }, 500); // Redirect to search book page after 2 seconds
+        // -------- gpt timeout --------
       } else {
         setMessage(data.error);
       }

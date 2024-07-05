@@ -20,9 +20,14 @@ const RegistrationForm = () => {
       const data = await response.json();
       if (response.ok) {
         setMessage('User registered successfully!');
-        setTimeout(() => {
-            navigate('/login');
-        }, 2000); // Redirect to login after 2 seconds
+        navigate('/login');
+        
+        // -------- gpt timeout --------
+        // setTimeout(() => {
+        //     navigate('/login');
+        // }, 500); // Redirect to login after 2 seconds
+        // -------- gpt timeout --------
+        
       } else {
         setMessage(data.error);
       }

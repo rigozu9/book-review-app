@@ -31,7 +31,6 @@ router.get('/books/:id', async (req, res) => {
 
     try {
         const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
-        console.log(`Using API key: ${apiKey}`);
 
         const response = await axios.get(`https://www.googleapis.com/books/v1/volumes/${bookId}?key=${apiKey}`);
         res.json(response.data);

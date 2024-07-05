@@ -7,6 +7,20 @@ import db from '../db.js';
 const router = express.Router();
 const saltRounds = 10;
 
+// Middleware to authenticate the user
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (token == null) return res.sendStatus(401); // If there is no token
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403); // If the token is invalid or expired
+    req.user = user;
+    next();
+  });
+};
+
 // Register a new user
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
@@ -58,5 +72,23 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Get user details by ID
+router.get('/userpage/:id', authenticateToken, async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 export default router;
