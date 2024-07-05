@@ -18,6 +18,9 @@ const LoginForm = () => {
         body: JSON.stringify({ username, password }),
       });
       const data = await response.json();
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userId', data.userId);
+      console.log(data.userId);
       if (response.ok) {
         setMessage('Login successful!');
         navigate('/search');

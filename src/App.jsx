@@ -3,6 +3,7 @@ import RegistrationForm from './components/RegistrationForm';
 import LoginForm from './components/LoginForm';
 import SearchBook from './components/SearchBook';
 import BookDetail from './components/BookDetail';
+import UserPage from './components/UserPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/search" element={<SearchBook />} />
           <Route path="/books/:id" element={<BookDetail />} />
+          <Route path="/userpage/:id" element={<UserPage />} />
           <Route path="/" element={<Navigate to="/register" />} />
         </Routes>
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { debounce } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 import BooksList from './BooksList';
 
 const SearchBook = () => {
@@ -7,6 +8,7 @@ const SearchBook = () => {
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [cache, setCache] = useState({});
+    const navigate = useNavigate();
 
     const debouncedGetBooks = debounce(() => {
         getBooks();
@@ -33,6 +35,16 @@ const SearchBook = () => {
         }
     };
 
+    const goToUserPage = () => {
+        const userId = localStorage.getItem('userId');
+        console.log('User ID:', userId); // Debugging line
+        if (userId) {
+            navigate(`/userpage/${userId}`);
+        } else {
+            console.error('User ID not found in localStorage');
+        }
+    };
+
     return (
         <>
             <div className="input-container">
@@ -45,6 +57,7 @@ const SearchBook = () => {
                     autoFocus 
                 />
             </div>
+            <button onClick={goToUserPage}>Go to My Page</button>
             {loading ? <div>Loading...</div> : <BooksList books={books} />}
         </>
     );

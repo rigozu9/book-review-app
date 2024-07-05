@@ -66,7 +66,7 @@ router.post('/login', async (req, res) => {
     // Create and sign a JWT
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.status(200).json({ token });
+    res.status(200).json({ token, userId: user.id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -77,8 +77,13 @@ router.post('/login', async (req, res) => {
 router.get('/userpage/:id', authenticateToken, async (req, res) => {
   const userId = req.params.id;
 
+  // Ensure the user can only access their own data
+  if (parseInt(userId) !== req.user.userId) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
   try {
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+    const user = db.prepare('SELECT id, username, read_books, plan_to_read_books FROM users WHERE id = ?').get(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
