@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import AddBookToPlan from './AddBookToPlan';
 
 const BookDetail = () => {
     const { id } = useParams();
     const [book, setBook] = useState(null);
+    const userId = localStorage.getItem('userId'); // Get userId from localStorage
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchBook = async () => {
@@ -21,6 +25,16 @@ const BookDetail = () => {
 
     const { volumeInfo } = book;
 
+    const goToUserPage = () => {
+        const userId = localStorage.getItem('userId');
+        console.log('User ID:', userId); // Debugging line
+        if (userId) {
+            navigate(`/userpage/${userId}`);
+        } else {
+            console.error('User ID not found in localStorage');
+        }
+    };
+
     return (
         <div>
             <h2>{volumeInfo.title}</h2>
@@ -30,6 +44,8 @@ const BookDetail = () => {
             <p>Published Date: {volumeInfo.publishedDate}</p>
             <p>Publisher: {volumeInfo.publisher}</p>
             <p>Page Count: {volumeInfo.pageCount}</p>
+            <AddBookToPlan userId={userId} bookId={id} />
+            <button onClick={goToUserPage}>Go to My Page</button>
         </div>
     );
 };

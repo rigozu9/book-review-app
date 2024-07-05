@@ -11,7 +11,7 @@ const saltRounds = 10;
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  
+
   if (token == null) return res.sendStatus(401); // If there is no token
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
@@ -111,5 +111,35 @@ router.get('/:id/read_books', authenticateToken, async (req, res) => {
   }
 });
 
+// Add a book to plan_to_read_books
+router.post('/:id/plan_to_read_books', authenticateToken, async (req, res) => {
+  const userId = req.params.id;
+  const { book_id } = req.body;
+
+  // Ensure the user can only modify their own data
+  if (parseInt(userId) !== req.user.userId) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  try {
+    const user = db.prepare('SELECT plan_to_read_books FROM users WHERE id = ?').get(userId);
+    const planToReadBooks = JSON.parse(user.plan_to_read_books || '[]');
+
+    // Check if the book is already in the plan_to_read_books list
+    if (planToReadBooks.includes(book_id)) {
+      return res.status(400).json({ error: 'Book already in plan to read list' });
+    }
+
+    planToReadBooks.push(book_id);
+
+    db.prepare('UPDATE users SET plan_to_read_books = ? WHERE id = ?')
+      .run(JSON.stringify(planToReadBooks), userId);
+
+    res.status(200).json({ message: 'Book added to plan to read list' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 export default router;
