@@ -142,4 +142,24 @@ router.post('/:id/plan_to_read_books', authenticateToken, async (req, res) => {
   }
 });
 
+// Add a book to read_books
+router.post('/:id/read_books', authenticateToken, async (req, res) => {
+  const userId = req.params.id;
+  const { book_id, rating, date_started, date_finished, review } = req.body;
+
+  // Ensure the user can only modify their own data
+  if (parseInt(userId) !== req.user.userId) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  try {
+    const stmt = db.prepare('INSERT INTO read_books (user_id, book_id, rating, date_started, date_finished, review) VALUES (?, ?, ?, ?, ?, ?)');
+    stmt.run(userId, book_id, rating, date_started, date_finished, review);
+    res.status(201).json({ message: 'Read book entry added successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

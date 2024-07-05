@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import AddBookToPlan from './AddBookToPlan';
+import AddReadBook from './AddReadBook';
 
 const BookDetail = () => {
     const { id } = useParams();
@@ -45,6 +45,7 @@ const BookDetail = () => {
             <p>Publisher: {volumeInfo.publisher}</p>
             <p>Page Count: {volumeInfo.pageCount}</p>
             <AddBookToPlan userId={userId} bookId={id} />
+            <AddReadBook userId={userId} bookId={id} />
             <button onClick={goToUserPage}>Go to My Page</button>
         </div>
     );
