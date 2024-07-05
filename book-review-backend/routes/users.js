@@ -83,12 +83,28 @@ router.get('/userpage/:id', authenticateToken, async (req, res) => {
   }
 
   try {
-    const user = db.prepare('SELECT id, username, read_books, plan_to_read_books FROM users WHERE id = ?').get(userId);
+    const user = db.prepare('SELECT id, username, plan_to_read_books FROM users WHERE id = ?').get(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/:id/read_books', authenticateToken, async (req, res) => {
+  const userId = req.params.id;
+
+  if (parseInt(userId) !== req.user.userId) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  try {
+    const readBooks = db.prepare('SELECT * FROM read_books WHERE user_id = ?').all(userId);
+    res.status(200).json(readBooks);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

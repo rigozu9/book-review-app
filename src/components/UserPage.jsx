@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import BooksList from './BooksList';
 
 const UserPage = () => {
@@ -15,22 +14,41 @@ const UserPage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token found');
+
+        // Fetch user data
         const response = await fetch(`http://localhost:3000/api/users/userpage/${id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`, // Assuming you store the JWT token in localStorage
+            'Authorization': `Bearer ${token}`,
           },
         });
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
-        }
+
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
         const data = await response.json();
         setUser(data);
 
-        const readBooksIds = JSON.parse(data.read_books);
+        // Fetch read books
+        const readBooksResponse = await fetch(`http://localhost:3000/api/users/${id}/read_books`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!readBooksResponse.ok) throw new Error(`Error: ${readBooksResponse.statusText}`);
+
+        const readBooksData = await readBooksResponse.json();
+        const readBookIds = readBooksData.map(book => book.book_id);
+
+        // Fetch plan to read books
         const planToReadBooksIds = JSON.parse(data.plan_to_read_books);
 
+        // Fetch book details
         const fetchBookDetails = async (bookIds) => {
           const bookDetails = await Promise.all(bookIds.map(async (bookId) => {
             const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${bookId}`);
@@ -39,7 +57,7 @@ const UserPage = () => {
           return bookDetails;
         };
 
-        setReadBooks(await fetchBookDetails(readBooksIds));
+        setReadBooks(await fetchBookDetails(readBookIds));
         setPlanToReadBooks(await fetchBookDetails(planToReadBooksIds));
       } catch (error) {
         setError(error.message);
@@ -60,7 +78,6 @@ const UserPage = () => {
   const goToSearchPage = () => {
     navigate(`/search`);
   };
-
 
   return (
     <div>
