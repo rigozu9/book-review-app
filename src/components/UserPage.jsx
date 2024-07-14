@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import BooksList from './BooksList';
+import { Box, Button, Typography, CircularProgress } from '@mui/material';
 
 const UserPage = () => {
   const { id } = useParams();
@@ -68,11 +69,19 @@ const UserPage = () => {
   }, [id]);
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
   }
 
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   const goToSearchPage = () => {
@@ -80,14 +89,16 @@ const UserPage = () => {
   };
 
   return (
-    <div>
-      <h1>{user.username}s Page</h1>
-      <button onClick={goToSearchPage}>Go to search</button>
-      <h2>Read</h2>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>{user.username}s Page</Typography>
+      <Button variant="contained" onClick={goToSearchPage} sx={{ mb: 3 }}>
+        Go to Search
+      </Button>
+      <Typography variant="h5" gutterBottom>Read</Typography>
       <BooksList books={readBooks} />
-      <h2>Plan to read</h2>
+      <Typography variant="h5" gutterBottom sx={{ mt: 3 }}>Plan to Read</Typography>
       <BooksList books={planToReadBooks} />
-    </div>
+    </Box>
   );
 };
 

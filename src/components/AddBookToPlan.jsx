@@ -1,7 +1,19 @@
 import { useState } from 'react';
+import { Box, Button, Typography, Snackbar } from '@mui/material';
+import { Alert } from '@mui/material';
 
 const AddBookToPlan = ({ userId, bookId }) => {
   const [message, setMessage] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
 
   const handleAddBook = async () => {
     try {
@@ -17,20 +29,39 @@ const AddBookToPlan = ({ userId, bookId }) => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('Book added to plan to read list');
+        setSnackbarMessage('Book added to plan to read list');
+        setSnackbarSeverity('success');
       } else {
         setMessage(data.error);
+        setSnackbarMessage(data.error);
+        setSnackbarSeverity('error');
       }
     } catch (error) {
       setMessage('Error: ' + error.message);
+      setSnackbarMessage('Error: ' + error.message);
+      setSnackbarSeverity('error');
+    } finally {
+      setSnackbarOpen(true);
     }
   };
 
   return (
-    <div>
-      <button onClick={handleAddBook}>Add to Plan to Read</button>
-      {message && <p>{message}</p>}
-    </div>
+    <Box sx={{ paddingLeft: 0, paddingBottom: 2}}>
+      <Button variant="contained" onClick={handleAddBook}>
+        Add to Plan to Read
+      </Button>
+      {message && <Typography color="error" sx={{ mt: 2 }}>{message}</Typography>}
+      <Snackbar 
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} 
+        open={snackbarOpen} 
+        autoHideDuration={5000} 
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 };
 

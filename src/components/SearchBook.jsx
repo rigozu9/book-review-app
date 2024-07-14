@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import BooksList from './BooksList';
+import { Box, Button, TextField, CircularProgress } from '@mui/material';
 
 const SearchBook = () => {
     const [books, setBooks] = useState([]);
@@ -46,20 +47,35 @@ const SearchBook = () => {
     };
 
     return (
-        <>
-            <div className="input-container">
-                <input 
-                    className="search-bar"
-                    type="text" 
-                    value={input} 
-                    onChange={(e) => setInput(e.target.value)} 
-                    placeholder="Search..." 
-                    autoFocus 
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
+                <TextField
+                    fullWidth
+                    variant="outlined"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Search..."
+                    autoFocus
+                    sx={{ maxWidth: 600 }}
+                    InputProps={{
+                        sx: {
+                            color: 'white',
+                            borderRadius: '20px'
+                        },
+                    }}
                 />
-            </div>
-            <button onClick={goToUserPage}>Go to My Page</button>
-            {loading ? <div>Loading...</div> : <BooksList books={books} />}
-        </>
+            </Box>
+            <Button variant="contained" onClick={goToUserPage}>
+                Go to My Page
+            </Button>
+            {loading ? (
+                <Box sx={{ mt: 2 }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <BooksList books={books} />
+            )}
+        </Box>
     );
 };
 
